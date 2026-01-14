@@ -1,0 +1,31 @@
+{
+  "name": "@proselenosebooks/monorepo",
+  "private": true,
+  "repository": "proselenosebooks/proselenosebooks",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "pnpm --filter @proselenosebooks/proselenos-app dev",
+    "build": "pnpm --filter @proselenosebooks/proselenos-app build",
+    "start": "pnpm --filter @proselenosebooks/proselenos-app start",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "check": "pnpm lint && pnpm typecheck"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.9.1",
+    "@sindresorhus/tsconfig": "^6.0.0",
+    "eslint": "^9.28.0",
+    "eslint-config-prettier": "^9.1.0",
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "typescript": "^5"
+  },
+  "pnpm": {
+    "overrides": {
+      "react": "19.1.0",
+      "react-dom": "19.1.0"
+    }
+  }
+}
