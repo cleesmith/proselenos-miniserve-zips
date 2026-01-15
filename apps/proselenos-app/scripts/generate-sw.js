@@ -129,8 +129,17 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached;
 
-      // Try .html version for clean URLs (e.g., /library -> /library.html)
       const pathname = url.pathname;
+
+      // Handle root URL - serve index.html
+      if (pathname === '/' || pathname === '') {
+        return caches.match('/index.html').then((indexCached) => {
+          if (indexCached) return indexCached;
+          return fetch(request);
+        });
+      }
+
+      // Try .html version for clean URLs (e.g., /library -> /library.html)
       if (!pathname.includes('.') && pathname !== '/') {
         const htmlUrl = pathname + '.html';
         return caches.match(htmlUrl).then((htmlCached) => {
