@@ -93,7 +93,7 @@ const LibraryHeader: React.FC<LibraryHeaderProps> = ({
       return;
     }
     // Otherwise navigate to Authors in this tab
-    router.push('/authors');
+    window.location.href = '/authors.html';
   };
 
   useEffect(() => {

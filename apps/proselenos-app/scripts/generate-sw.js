@@ -34,9 +34,8 @@ function getAllFiles(dir, baseDir = dir) {
 const allFiles = getAllFiles(outDir);
 
 // Filter out sw.js (never cache the service worker itself)
-// Also add clean route URLs for HTML files
+// Only cache actual files - no clean URLs (miniserve serves real files)
 const precacheUrls = [];
-const addedPaths = new Set();
 
 for (const file of allFiles) {
   // Skip the service worker
@@ -45,26 +44,8 @@ for (const file of allFiles) {
   // Skip _headers file (Cloudflare-specific)
   if (file === '/_headers') continue;
 
-  // Add the file
-  if (!addedPaths.has(file)) {
-    precacheUrls.push(file);
-    addedPaths.add(file);
-  }
-
-  // For HTML files, also add the clean URL (without .html)
-  if (file.endsWith('.html') && file !== '/index.html' && file !== '/404.html') {
-    const cleanUrl = file.replace('.html', '');
-    if (!addedPaths.has(cleanUrl)) {
-      precacheUrls.push(cleanUrl);
-      addedPaths.add(cleanUrl);
-    }
-  }
-
-  // Special case: index.html should also be accessible as /
-  if (file === '/index.html' && !addedPaths.has('/')) {
-    precacheUrls.push('/');
-    addedPaths.add('/');
-  }
+  // Add only actual files
+  precacheUrls.push(file);
 }
 
 console.log(`Total files to precache: ${precacheUrls.length}`);
@@ -147,6 +128,24 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
+
+      // Try .html version for clean URLs (e.g., /library -> /library.html)
+      const pathname = url.pathname;
+      if (!pathname.includes('.') && pathname !== '/') {
+        const htmlUrl = pathname + '.html';
+        return caches.match(htmlUrl).then((htmlCached) => {
+          if (htmlCached) return htmlCached;
+          // Fall through to network
+          return fetch(request).then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          });
+        });
+      }
+
       return fetch(request).then((response) => {
         if (response.ok) {
           const clone = response.clone();

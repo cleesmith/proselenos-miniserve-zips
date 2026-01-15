@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { checkForAppUpdates, checkAppReleaseNotes } from '@/utils/desktop-stubs';
 import { useEnv } from '@/context/EnvContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -13,13 +12,6 @@ export default function Page() {
   const _ = useTranslation();
   const { appService } = useEnv();
   const { settings } = useSettingsStore();
-  const router = useRouter();
-
-  // Prefetch other routes for offline support
-  useEffect(() => {
-    router.prefetch('/library');
-    router.prefetch('/authors');
-  }, [router]);
 
   useEffect(() => {
     const doCheckAppUpdates = async () => {

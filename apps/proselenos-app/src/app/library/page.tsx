@@ -142,12 +142,6 @@ const LibraryPageContent = ({ searchParams }: { searchParams: ReadonlyURLSearchP
     return () => channel.close();
   }, [handleRefreshLibrary]);
 
-  // Prefetch other routes for offline support
-  useEffect(() => {
-    router.prefetch('/reader');
-    router.prefetch('/authors');
-  }, [router]);
-
   useEffect(() => {
     if (appService?.hasWindow) {
       const currentWebview = getCurrentWebview();

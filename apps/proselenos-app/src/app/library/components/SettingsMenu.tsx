@@ -1,6 +1,5 @@
 import clsx from 'clsx';
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { PiGear, PiPencil, PiTrash, PiArrowClockwise, PiDatabase, PiInfo } from 'react-icons/pi';
 import { PiSun, PiMoon } from 'react-icons/pi';
 import { showConfirm, showAlert } from '@/app/shared/alerts';
@@ -28,7 +27,6 @@ interface Permissions {
 }
 
 const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
-  const router = useRouter();
   const _ = useTranslation();
   const { envConfig, appService } = useEnv();
   const { themeMode, setThemeMode } = useThemeStore();
@@ -123,7 +121,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ setIsDropdownOpen }) => {
     }
 
     // Otherwise navigate to Authors in this tab
-    router.push('/authors');
+    window.location.href = '/authors.html';
   };
 
   const handleResetLibrary = async () => {

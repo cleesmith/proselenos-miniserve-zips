@@ -33,10 +33,6 @@ export const navigateToLogin = (router: ReturnType<typeof useRouter>) => {
   router.push('/');
 };
 
-export const navigateToProfile = (router: ReturnType<typeof useRouter>) => {
-  router.push('/user');
-};
-
 export const navigateToLibrary = (
   router: ReturnType<typeof useRouter>,
   queryParams?: string,
