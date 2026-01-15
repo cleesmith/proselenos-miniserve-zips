@@ -67,9 +67,9 @@ const XrayViewer: React.FC<XrayViewerProps> = ({ bookTitle, epubFile, onClose })
     if (onClose) {
       onClose();
     } else {
-      router.push('/library');
+      window.location.href = '/library.html';
     }
-  }, [onClose, router]);
+  }, [onClose]);
 
   // Extract just the filename from the path for display
   const selectedFileName = selectedPath?.split('/').pop() || null;

@@ -46,7 +46,7 @@ export const navigateToLibrary = (
 };
 
 export const redirectToLibrary = () => {
-  redirect('/library');
+  redirect('/library.html');
 };
 
 export const navigateToResetPassword = (router: ReturnType<typeof useRouter>) => {

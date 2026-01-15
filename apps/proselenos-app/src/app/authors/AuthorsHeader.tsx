@@ -84,7 +84,7 @@ export default function AuthorsHeader({
     if (window.opener && !window.opener.closed) {
       window.close();
     } else {
-      router.push('/library');
+      window.location.href = '/library.html';
     }
   };
 
@@ -97,7 +97,7 @@ export default function AuthorsHeader({
       libraryWindowRef.current.focus();
     } else {
       // Open new Library tab and save reference (Authors can control tabs it opens)
-      libraryWindowRef.current = window.open('/library', '_blank');
+      libraryWindowRef.current = window.open('/library.html', '_blank');
     }
   };
 

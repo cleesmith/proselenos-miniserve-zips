@@ -25,7 +25,7 @@ export default function Error({ error, reset }: ErrorPageProps) {
   }, [appService, error]);
 
   const handleGoHome = () => {
-    window.location.href = '/library';
+    window.location.href = '/library.html';
   };
 
   const handleGoBack = () => {
