@@ -11,11 +11,16 @@ const CACHE_VERSION = '${gitHash}';
 const CACHE_NAME = \`everythingebooks-\${CACHE_VERSION}\`;
 
 const PRECACHE_URLS = [
+  '/',
   '/library',
+  '/library.txt',
   '/authors',
+  '/authors.txt',
+  '/reader',
+  '/reader.txt',
 ];
 
-// Install: pre-cache critical pages
+// Install: pre-cache critical pages and RSC payloads
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -53,7 +58,7 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch: network-first for pages, cache-first for static assets
+// Fetch: cache-first for everything (safe for static export)
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -68,52 +73,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Never cache the service worker script itself (defensive)
+  // Never cache the service worker script itself
   if (url.pathname === '/sw.js') {
     return;
   }
 
-  // Navigation requests (HTML pages) - cache-first
-  if (request.mode === 'navigate') {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // Static assets (/_next/static/*) - cache-first (hashed, safe to cache)
-  if (url.pathname.startsWith('/_next/static/')) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          return response;
-        });
-      })
-    );
-    return;
-  }
-
-  // RSC payloads and other requests - network-first with cache fallback
+  // Cache-first for everything
   event.respondWith(
-    fetch(request)
-      .then((response) => {
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      return fetch(request).then((response) => {
         if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
-      })
-      .catch(() => caches.match(request))
+      });
+    })
   );
 });
 `;
