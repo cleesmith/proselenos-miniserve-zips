@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "Cleaning proselenos project..."
+echo "Cleaning project..."
 
 # Remove root node_modules
 if [ -d "node_modules" ]; then
