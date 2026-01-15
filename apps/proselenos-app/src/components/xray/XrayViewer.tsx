@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import JSZip from 'jszip';
 import { GiBoxUnpacking } from 'react-icons/gi';
 import { XrayTreeNode, ContentResult, loadEpubStructure, getFileContent } from '@/services/xrayService';
@@ -13,7 +12,6 @@ interface XrayViewerProps {
 }
 
 const XrayViewer: React.FC<XrayViewerProps> = ({ bookTitle, epubFile, onClose }) => {
-  const router = useRouter();
   const [tree, setTree] = useState<XrayTreeNode | null>(null);
   const [zip, setZip] = useState<JSZip | null>(null);
   const [selectedPath, setSelectedPath] = useState<string | null>(null);

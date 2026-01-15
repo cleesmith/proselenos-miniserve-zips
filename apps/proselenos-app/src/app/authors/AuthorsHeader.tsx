@@ -3,7 +3,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
 import { PiKey, PiCpu, PiChatCircle, PiFolderOpen, PiNotePencil, PiDatabase, PiInfo, PiFileHtml, PiImage, PiArrowRight } from 'react-icons/pi';
 import { ThemeConfig } from '../shared/theme';
 import StyledSmallButton from '@/components/StyledSmallButton';
@@ -57,7 +56,6 @@ export default function AuthorsHeader({
   onCoverClick,
   onHtmlExportClick,
 }: AuthorsHeaderProps) {
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [openDropdownOpen, setOpenDropdownOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
