@@ -7,9 +7,14 @@ const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 const outDir = path.join(__dirname, '../out');
 
-// Recursively get all files in a directory
+// Recursively get ALL files in a directory
 function getAllFiles(dir, baseDir = dir) {
   const files = [];
+
+  if (!fs.existsSync(dir)) {
+    return files;
+  }
+
   const entries = fs.readdirSync(dir, { withFileTypes: true });
 
   for (const entry of entries) {
@@ -25,57 +30,44 @@ function getAllFiles(dir, baseDir = dir) {
   return files;
 }
 
-// Get all static assets from out/_next/static/
-function getStaticAssets() {
-  const staticDir = path.join(outDir, '_next/static');
-  if (!fs.existsSync(staticDir)) {
-    console.warn('Warning: _next/static directory not found');
-    return [];
+// Get ALL files from out/ directory
+const allFiles = getAllFiles(outDir);
+
+// Filter out sw.js (never cache the service worker itself)
+// Also add clean route URLs for HTML files
+const precacheUrls = [];
+const addedPaths = new Set();
+
+for (const file of allFiles) {
+  // Skip the service worker
+  if (file === '/sw.js') continue;
+
+  // Skip _headers file (Cloudflare-specific)
+  if (file === '/_headers') continue;
+
+  // Add the file
+  if (!addedPaths.has(file)) {
+    precacheUrls.push(file);
+    addedPaths.add(file);
   }
-  return getAllFiles(staticDir, outDir);
-}
 
-// Get all HTML and RSC payload files from out/
-function getPageFiles() {
-  const pages = [];
-  const entries = fs.readdirSync(outDir, { withFileTypes: true });
-
-  for (const entry of entries) {
-    if (entry.isFile()) {
-      if (entry.name.endsWith('.html') || entry.name.endsWith('.txt')) {
-        // Convert filename to URL path
-        const urlPath = entry.name === 'index.html' ? '/' : '/' + entry.name;
-        pages.push(urlPath);
-      }
+  // For HTML files, also add the clean URL (without .html)
+  if (file.endsWith('.html') && file !== '/index.html' && file !== '/404.html') {
+    const cleanUrl = file.replace('.html', '');
+    if (!addedPaths.has(cleanUrl)) {
+      precacheUrls.push(cleanUrl);
+      addedPaths.add(cleanUrl);
     }
   }
-  return pages;
+
+  // Special case: index.html should also be accessible as /
+  if (file === '/index.html' && !addedPaths.has('/')) {
+    precacheUrls.push('/');
+    addedPaths.add('/');
+  }
 }
 
-// Build the precache list
-const staticAssets = getStaticAssets();
-const pageFiles = getPageFiles();
-
-// Core routes (clean URLs)
-const coreRoutes = [
-  '/library',
-  '/authors',
-  '/reader',
-];
-
-// Combine all URLs to precache
-const allPrecacheUrls = [
-  ...coreRoutes,
-  ...pageFiles,
-  ...staticAssets,
-];
-
-// Remove duplicates
-const precacheUrls = [...new Set(allPrecacheUrls)];
-
-console.log(`Found ${staticAssets.length} static assets`);
-console.log(`Found ${pageFiles.length} page files`);
-console.log(`Total precache URLs: ${precacheUrls.length}`);
+console.log(`Total files to precache: ${precacheUrls.length}`);
 
 const swContent = `// Auto-generated at build time - do not edit manually
 // Version: ${gitHash}
@@ -85,12 +77,12 @@ const CACHE_NAME = \`everythingebooks-\${CACHE_VERSION}\`;
 
 const PRECACHE_URLS = ${JSON.stringify(precacheUrls, null, 2)};
 
-// Install: pre-cache all static assets
+// Install: pre-cache ALL static assets for full offline support
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Precaching', PRECACHE_URLS.length, 'files...');
+        console.log('Precaching', PRECACHE_URLS.length, 'files for offline use...');
         return Promise.all(
           PRECACHE_URLS.map((url) => {
             return fetch(url)
@@ -107,13 +99,13 @@ self.addEventListener('install', (event) => {
         );
       })
       .then(() => {
-        console.log('Precaching complete');
+        console.log('Precaching complete - app ready for offline use');
         return self.skipWaiting();
       })
   );
 });
 
-// Activate: clean old caches, take control
+// Activate: clean old caches, take control immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
