@@ -7,6 +7,14 @@ const gitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 const outDir = path.join(__dirname, '../out');
 
+// Copy library.html to index.html so root "/" serves library directly
+const libraryHtml = path.join(outDir, 'library.html');
+const indexHtml = path.join(outDir, 'index.html');
+if (fs.existsSync(libraryHtml)) {
+  fs.copyFileSync(libraryHtml, indexHtml);
+  console.log('Copied library.html to index.html');
+}
+
 // Recursively get ALL files in a directory
 function getAllFiles(dir, baseDir = dir) {
   const files = [];

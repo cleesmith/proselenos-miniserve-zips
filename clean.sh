@@ -31,6 +31,6 @@ fi
 # rm -rf ~/.local/share/pnpm/store
 
 echo ""
-echo "Clean complete! Now run:"
+echo "Clean done! Now run:"
 echo "  pnpm install"
 echo "  pnpm build"
