@@ -1,0 +1,108 @@
+# EverythingEbooks Release Zip Creation Plan
+
+## Goal
+Create a single universal zip for GitHub releases. Users download the zip,
+extract, run http-server, and they open the app in their browser.
+
+## Why This Approach
+- No platform-specific scripts
+- Node.js http-server is a trusted/signed application
+- One zip works for Mac, Windows, and Linux
+
+## Zip Contents Structure
+
+```
+EverythingEbooks.zip
+└── EverythingEbooks/
+    ├── README.txt           <- Instructions
+    ├── index.html           <- App files from out/
+    ├── library.html
+    ├── authors.html
+    ├── reader.html
+    ├── sw.js
+    ├── _next/               <- All Next.js assets
+    └── ...                  <- Rest of out/ contents
+```
+
+## README.txt Content
+
+```
+EverythingEbooks - Offline Ebook Reader & Writing App
+=====================================================
+
+SETUP (one-time)
+----------------
+1. Install Node.js from https://nodejs.org
+2. Open Terminal (Mac) or Command Prompt (Windows)
+3. Run: npm install -g http-server
+
+QUICK START
+-----------
+1. Download the zip from GitHub Releases
+2. Unzip the file
+3. Open Terminal (Mac) or Command Prompt (Windows)
+4. cd to the EverythingEbooks folder
+5. Run: http-server -p 3000
+6. Open browser to http://localhost:3000
+7. Press Ctrl+C to stop the server
+
+MORE INFO
+---------
+Online version: https://everythingebooks.org
+```
+
+## Directory Structure
+
+```
+proselenos-miniserve-zips/
+├── distribution/
+│   └── create-release-zips.js   <- Main script
+├── apps/proselenos-app/
+│   └── out/                     <- From build
+├── releases/                    <- Created by script, gitignored
+│   └── EverythingEbooks.zip
+└──
+```
+
+## Usage
+
+```bash
+# 1. use git hash as app version:
+git add . && git commit -m "fixes or whatever"
+... verify git hash:
+git rev-parse --short HEAD
+
+# 2. Build the app first, it will show git hash
+pnpm build
+
+# 2. Create release zip
+node distribution/create-release-zips.js
+
+# 3. Upload releases/EverythingEbooks.zip to GitHub Releases
+```
+
+## GitHub Release Notes Template
+
+```markdown
+## EverythingEbooks - Offline Version
+
+**Prefer the easy way?** Just use it online at https://everythingebooks.org
+
+### Download & Run Locally
+
+1. Download `EverythingEbooks.zip` below
+2. Unzip the file
+3. Install Node.js from https://nodejs.org (one-time)
+4. Open Terminal (Mac) or Command Prompt (Windows)
+5. Run: `npm install -g http-server` (one-time)
+6. cd to the EverythingEbooks folder
+7. Run: `http-server -p 3000`
+8. Open http://localhost:3000
+9. Press Ctrl+C to stop
+
+### Why Local?
+
+- Works offline after first load
+- Your data stays on your computer
+- No internet required after setup
+```
